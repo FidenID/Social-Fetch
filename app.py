@@ -109,5 +109,5 @@ def download(file_id, mode):
                          download_name=matches[0])
 
 if __name__ == '__main__':
-    print('TikTok Downloader jalan di http://127.0.0.1:5000')
+    print('TokFetch jalan di http://127.0.0.1:5000')
     app.run(debug=True, host='0.0.0.0', port=5000)

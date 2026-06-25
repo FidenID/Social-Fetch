@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Downloader</title>
+    <title>TokFetch - Social Media Downloader</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -15,8 +15,8 @@
                     <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
                 </svg>
             </div>
-            <h1>TikTok Downloader</h1>
-            <p class="subtitle">Download video TikTok kualitas tinggi + ekstrak audio</p>
+            <h1>TokFetch</h1>
+            <p class="subtitle">Download video/audio dari TikTok, Instagram, Facebook, YouTube, Twitter & masih banyak lagi</p>
 
             {% if error %}
             <div class="error">{{ error }}</div>
@@ -24,7 +24,7 @@
 
             <form method="POST">
                 <div class="input-group">
-                    <input type="url" name="url" placeholder="Tempelin link TikTok di sini..." required autofocus>
+                    <input type="url" name="url" placeholder="Tempelin link TikTok/IG/FB/YouTube di sini..." required autofocus>
                 </div>
 
                 <div class="mode-select">
@@ -37,7 +37,7 @@
                             </svg>
                             Video MP4
                         </span>
-                        <span class="mode-desc">Kualitas高清</span>
+                        <span class="mode-desc">Kualitas jgn di tnya</span>
                     </label>
                     <label class="mode-option">
                         <input type="radio" name="mode" value="audio">
@@ -66,7 +66,7 @@
             <div class="info">
                 <p>Cara pakai:</p>
                 <ol>
-                    <li>Buka TikTok, copy link video</li>
+                    <li>Copy link dari TikTok, Instagram, Facebook, YouTube, dll</li>
                     <li>Tempel link di atas</li>
                     <li>Pilih Video MP4 atau Audio MP3</li>
                     <li>Klik Download</li>

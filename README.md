@@ -1,10 +1,12 @@
 # TokFetch
 
-Downloader TikTok berbasis web — tinggal masukin URL, langsung ke download.
+Downloader video/audio dari berbagai sosial media — tinggal masukin URL, langsung ke download.
+
+Didukung oleh **yt-dlp**: TikTok, Instagram, Facebook, YouTube, Twitter/X, Reddit, dan masih banyak lagi.
 
 ## Fitur
 
-- Download video TikTok tanpa watermark
+- Download video dari TikTok, Instagram Reels/Post, Facebook, YouTube, Twitter/X, dll
 - Ekstrak audio MP3 (320kbps)
 - Antarmuka web simpel, tinggal buka browser
 - Auto-cleanup file setelah di-download
@@ -19,8 +21,8 @@ Downloader TikTok berbasis web — tinggal masukin URL, langsung ke download.
 ## Instalasi
 
 ```bash
-git clone https://github.com/username/tokfetch.git
-cd tokfetch
+git clone https://github.com/FidenID/Downloader-Video-Tiktok.git
+cd Downloader-Video-Tiktok
 python3 -m venv venv
 venv/bin/pip install -r requirements.txt
 ```
@@ -54,10 +56,11 @@ Buka **http://127.0.0.1:5000** di browser.
 
 ## Cara Pakai
 
-1. Tempel URL TikTok di kolom
-2. Pilih mode **Video** atau **Audio**
-3. Klik Download
-4. File langsung ter-download otomatis
+1. Copy link dari TikTok, Instagram, Facebook, YouTube, atau platform lainnya
+2. Tempel link di kolom
+3. Pilih mode **Video** atau **Audio**
+4. Klik Download
+5. File langsung ter-download otomatis
 
 ## Struktur
 
@@ -77,5 +80,19 @@ tokfetch/
 ## Teknologi
 
 - **Flask** — web framework
-- **yt-dlp** — engine download video
+- **yt-dlp** — engine download video (support 1000+ situs)
 - **ffmpeg** — konversi audio
+
+## Deploy ke VPS
+
+```bash
+# Install
+sudo apt install nginx certbot python3-certbot-nginx ffmpeg
+pip install gunicorn
+
+# Jalanin pake Gunicorn
+gunicorn -w 2 -b 127.0.0.1:5000 app:app
+
+# Reverse proxy Nginx + SSL
+sudo certbot --nginx -d domainmu.com
+```
