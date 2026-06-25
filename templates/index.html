@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23 7 16 12 23 17 23 7"/>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+            </div>
+            <h1>TikTok Downloader</h1>
+            <p class="subtitle">Download video TikTok kualitas tinggi + ekstrak audio</p>
+
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <input type="url" name="url" placeholder="Tempelin link TikTok di sini..." required autofocus>
+                </div>
+
+                <div class="mode-select">
+                    <label class="mode-option">
+                        <input type="radio" name="mode" value="video" checked>
+                        <span class="mode-label">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                            Video MP4
+                        </span>
+                        <span class="mode-desc">Kualitas高清</span>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="mode" value="audio">
+                        <span class="mode-label">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18V5l12-2v13"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <circle cx="18" cy="16" r="3"/>
+                            </svg>
+                            Audio MP3
+                        </span>
+                        <span class="mode-desc">Ekstrak suara doang</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-download">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download
+                </button>
+            </form>
+
+            <div class="info">
+                <p>Cara pakai:</p>
+                <ol>
+                    <li>Buka TikTok, copy link video</li>
+                    <li>Tempel link di atas</li>
+                    <li>Pilih Video MP4 atau Audio MP3</li>
+                    <li>Klik Download</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
