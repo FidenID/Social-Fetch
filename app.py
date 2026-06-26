@@ -33,6 +33,8 @@ def index():
         if not url:
             return render_template('index.html', error='Masukin URL dulu ya!')
 
+        url = url.replace('/photo/', '/video/')
+
         file_id = str(uuid.uuid4())
         output_template = os.path.join(DOWNLOAD_DIR, f'{file_id}_%(id)s.%(ext)s')
 
