@@ -2,7 +2,8 @@ import os
 import subprocess
 import uuid
 import re
-import time
+import zipfile
+import io
 from flask import Flask, render_template, request, Response
 
 app = Flask(__name__)
@@ -21,6 +22,8 @@ for f in os.listdir(DOWNLOAD_DIR):
 def sanitize_filename(name):
     return re.sub(r'[^\w\-_\. ]', '', name)
 
+IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'}
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -31,19 +34,30 @@ def index():
             return render_template('index.html', error='Masukin URL dulu ya!')
 
         file_id = str(uuid.uuid4())
-        output_template = os.path.join(DOWNLOAD_DIR, f'{file_id}.%(ext)s')
+        output_template = os.path.join(DOWNLOAD_DIR, f'{file_id}_%(id)s.%(ext)s')
 
         venv_bin = os.path.join(BASE_DIR, 'venv', 'bin')
         yt_dlp_path = os.path.join(venv_bin, 'yt-dlp')
-        yt_cmd = [
-            yt_dlp_path,
-            '-f', 'bv[height<=1080]+ba/b[height<=1080]/best',
-            '--merge-output-format', 'mp4',
-            '--no-playlist',
-            '--no-warnings',
-            '-o', output_template,
-            url,
-        ]
+
+        if mode == 'photo':
+            yt_cmd = [
+                yt_dlp_path,
+                '--no-playlist',
+                '--no-warnings',
+                '--ignore-errors',
+                '-o', output_template,
+                url,
+            ]
+        else:
+            yt_cmd = [
+                yt_dlp_path,
+                '-f', 'bv[height<=1080]+ba/b[height<=1080]/best',
+                '--merge-output-format', 'mp4',
+                '--no-playlist',
+                '--no-warnings',
+                '-o', output_template,
+                url,
+            ]
 
         try:
             result = subprocess.run(yt_cmd, capture_output=True, text=True, timeout=300)
@@ -53,6 +67,64 @@ def index():
             downloaded_files = [f for f in os.listdir(DOWNLOAD_DIR) if f.startswith(file_id)]
             if not downloaded_files:
                 return render_template('index.html', error='File hasil download gak ketemu.')
+
+            if mode == 'photo':
+                image_files = sorted(
+                    [f for f in downloaded_files if os.path.splitext(f)[1].lower() in IMAGE_EXTS]
+                )
+                if not image_files:
+                    return render_template('index.html', error='Gak ada foto yang ditemukan di link itu.')
+
+                if len(image_files) == 1:
+                    target_file = os.path.join(DOWNLOAD_DIR, image_files[0])
+                    ext = os.path.splitext(target_file)[1].lower()
+                    mimetype_map = {'.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif'}
+                    mimetype = mimetype_map.get(ext, 'image/jpeg')
+                    download_name = image_files[0]
+
+                    file_size = os.path.getsize(target_file)
+                    headers = {
+                        'Content-Disposition': f'attachment; filename="{download_name}"',
+                        'Content-Length': str(file_size),
+                    }
+
+                    def stream_img():
+                        try:
+                            with open(target_file, 'rb') as f:
+                                while chunk := f.read(65536):
+                                    yield chunk
+                        finally:
+                            try:
+                                os.remove(target_file)
+                            except Exception:
+                                pass
+
+                    return Response(stream_img(), mimetype=mimetype, headers=headers)
+
+                buf = io.BytesIO()
+                with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+                    for fn in image_files:
+                        fp = os.path.join(DOWNLOAD_DIR, fn)
+                        zf.write(fp, fn)
+                        os.remove(fp)
+                buf.seek(0)
+                zip_data = buf.getvalue()
+
+                for fn in downloaded_files:
+                    if fn not in image_files:
+                        try:
+                            os.remove(os.path.join(DOWNLOAD_DIR, fn))
+                        except Exception:
+                            pass
+
+                return Response(
+                    zip_data,
+                    mimetype='application/zip',
+                    headers={
+                        'Content-Disposition': f'attachment; filename="{file_id}_photos.zip"',
+                        'Content-Length': str(len(zip_data)),
+                    }
+                )
 
             raw_file = os.path.join(DOWNLOAD_DIR, downloaded_files[0])
             base, ext = os.path.splitext(raw_file)
@@ -96,11 +168,7 @@ def index():
                 'Content-Length': str(file_size),
             }
 
-            return Response(
-                stream_and_cleanup(),
-                mimetype=mimetype,
-                headers=headers,
-            )
+            return Response(stream_and_cleanup(), mimetype=mimetype, headers=headers)
 
         except subprocess.TimeoutExpired:
             return render_template('index.html', error='Download timeout, coba lagi nanti.')
