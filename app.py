@@ -2,7 +2,8 @@ import os
 import subprocess
 import uuid
 import re
-from flask import Flask, render_template, request, send_file
+import time
+from flask import Flask, render_template, request, Response
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
@@ -10,6 +11,12 @@ app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(BASE_DIR, 'downloads')
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+for f in os.listdir(DOWNLOAD_DIR):
+    try:
+        os.remove(os.path.join(DOWNLOAD_DIR, f))
+    except Exception:
+        pass
 
 def sanitize_filename(name):
     return re.sub(r'[^\w\-_\. ]', '', name)
@@ -71,17 +78,29 @@ def index():
             if not os.path.exists(target_file):
                 return render_template('index.html', error='File hasil gak ditemukan.')
 
-            response = send_file(target_file, mimetype=mimetype, as_attachment=True,
-                                 download_name=download_name)
+            file_size = os.path.getsize(target_file)
 
-            @response.call_on_close
-            def cleanup():
+            def stream_and_cleanup():
                 try:
-                    os.remove(target_file)
-                except Exception:
-                    pass
+                    with open(target_file, 'rb') as f:
+                        while chunk := f.read(65536):
+                            yield chunk
+                finally:
+                    try:
+                        os.remove(target_file)
+                    except Exception:
+                        pass
 
-            return response
+            headers = {
+                'Content-Disposition': f'attachment; filename="{download_name}"',
+                'Content-Length': str(file_size),
+            }
+
+            return Response(
+                stream_and_cleanup(),
+                mimetype=mimetype,
+                headers=headers,
+            )
 
         except subprocess.TimeoutExpired:
             return render_template('index.html', error='Download timeout, coba lagi nanti.')
