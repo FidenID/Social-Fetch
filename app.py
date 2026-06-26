@@ -30,7 +30,7 @@ def index():
         yt_dlp_path = os.path.join(venv_bin, 'yt-dlp')
         yt_cmd = [
             yt_dlp_path,
-            '-f', 'bestvideo+bestaudio/best',
+            '-f', 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
             '--merge-output-format', 'mp4',
             '--no-playlist',
             '--no-warnings',
@@ -39,7 +39,7 @@ def index():
         ]
 
         try:
-            result = subprocess.run(yt_cmd, capture_output=True, text=True, timeout=120)
+            result = subprocess.run(yt_cmd, capture_output=True, text=True, timeout=300)
             if result.returncode != 0:
                 return render_template('index.html', error=f'Gagal download: {result.stderr[:500]}')
 
@@ -59,7 +59,7 @@ def index():
                     '-ab', '320k',
                     '-y', audio_path
                 ]
-                subprocess.run(ff_cmd, capture_output=True, text=True, timeout=120)
+                subprocess.run(ff_cmd, capture_output=True, text=True, timeout=300)
                 os.remove(raw_file)
                 target_file = audio_path
                 download_name = os.path.basename(audio_path)
