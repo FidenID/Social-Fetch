@@ -37,7 +37,7 @@ def index():
         yt_dlp_path = os.path.join(venv_bin, 'yt-dlp')
         yt_cmd = [
             yt_dlp_path,
-            '-f', 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
+            '-f', 'bv[height<=1080]+ba/b[height<=1080]/best',
             '--merge-output-format', 'mp4',
             '--no-playlist',
             '--no-warnings',
