@@ -24,7 +24,7 @@ def index():
             return render_template('index.html', error='Masukin URL TikTok dulu ya!')
 
         file_id = str(uuid.uuid4())
-        output_template = os.path.join(DOWNLOAD_DIR, f'{file_id}_%(title)s.%(ext)s')
+        output_template = os.path.join(DOWNLOAD_DIR, f'{file_id}_%(id)s.%(ext)s')
 
         venv_bin = os.path.join(BASE_DIR, 'venv', 'bin')
         yt_dlp_path = os.path.join(venv_bin, 'yt-dlp')
